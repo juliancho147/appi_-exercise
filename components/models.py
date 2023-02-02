@@ -37,7 +37,7 @@ class Cancion(DATABASE):
         query = """select id,nombre,duracion,artista,album,calificaion from cancion;"""
         with engie.connect() as connection:
             result = connection.execute(
-                query
+                select(Cancion)
             )
             
             connection.close()
@@ -62,58 +62,41 @@ class Cancion(DATABASE):
             #     return err
         return "ok"
 
-    def update(tecnico):
+    def update(cancion):
         try:
             with engie.connect() as connection:
                 connection.execute(
-                    update(Tecnico)
-                    .where(Tecnico.id == tecnico["id"])
+                    update(Cancion)
+                    .where(Cancion.id == cancion["id"])
                     .values(
-                        nombre=tecnico["nombre"],
-                        sueldo=tecnico["sueldo"],
-                        sucursal_id=tecnico["sucursal_id"],
+                        nombre=cancion["nombre"],
+                        duracion = cancion["duracion"],
+                        artista = cancion["artista"],
+                        album = cancion["album"],
+                        calificaion =cancion["calificaion"]
                     )
                 )
-                for elemento in tecnico["elementos"]:
-                    elemento_id =  elemento["id"]
-                    cantidad = elemento["cantidad"]
-                    connection.execute(
-                        update(ElementoXTecnico)
-                        .where(
-                            ElementoXTecnico.elemento_id == elemento_id
-                            and ElementoXTecnico.tecnico_id == tecnico["id"]
-                        )
-                        .values(cantidad=cantidad)
-                    )
+                connection.commit()
                 connection.close()
         except Exception as err:
             return err
         return "ok"
 
-    def delete(tecnico):
-
+    def delete(cancion):
+       
         with engie.connect() as connection:
-            connection.execute(
-                delete(ElementoXTecnico).where(
-                    ElementoXTecnico.tecnico_id == tecnico["id"]
+            try:
+                connection.execute(
+                    delete(Cancion).where(
+                        Cancion.id == cancion["id"]
+                    )
                 )
-            )
-            connection.execute(delete(Tecnico).where(Tecnico.id == tecnico["id"]))
-            connection.close()
-    def get_elementos(tecnico):
-        id =  tecnico["id"]
-        query = """
-            select t.id,et.cantidad,e.id, e.nombre, e.descripcion from test.tecnico t 
-            inner join test.elementoxtecnico et on t.id = et.tecnico_id
-            inner join test.elemento e on et.elemento_id =  e.id
-            where t.id = '{}';""".format(str(id))
-        with engie.connect() as connection:
-            result = connection.execute(query)
-            print(result)
-            connection.close()
-
-        return result.all()
-
+                connection.commit()
+                connection.close()
+            except Exception as err:
+                return err
+        return "ok"
+   
 
 
 

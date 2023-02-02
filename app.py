@@ -25,9 +25,35 @@ def get_all():
     app.logger.info(canciones)
     response = []
     for cancion in canciones:
-        response.append(dict(cancion))
-    return make_response(jsonify(["canciones"]))
+        
+        response.append({
+        "id":cancion[0],
+        "nombre":cancion[1],
+        "duracion":cancion[2],
+        "artista":cancion[3],
+        "album":cancion[4],
+        "calificaion":cancion[5]
+    })
+    
+    return make_response(jsonify(response))
 
+@app.route("/delete", methods=["DELETE"])
+def delete():
+    """
+    metodo para eliminar una canción 
+    cancion : {
+        id:id,
+    }
+    Returns:
+        json: retorna el estado de la  solicitud
+    """
+    cancion = request.json["cancion"]
+    app.logger.info(cancion)
+    status = Cancion.delete(cancion)
+    if status != "ok":
+        return make_response(jsonify({"response": str(status)}), 200)
+    return make_response(jsonify({"response": "ok"}), 200)
+    
 @app.route("/add_new", methods=["POST"])
 def add_new():
     """
@@ -50,5 +76,27 @@ def add_new():
         return make_response(jsonify({"response": str(status)}), 200)
     return make_response(jsonify({"response": "ok"}), 200)
 
+
+@app.route("/update", methods=["PUT"])
+def update():
+    """
+    metodo para actualizar una canción 
+    cancion : {
+        id:id,
+        nombre:nombre(str),
+        duracion:salario(str),
+        artista:sucursal_id(str),
+        album:album(str),
+        calificaion:calificaion(int)
+    }
+    Returns:
+        json: retorna el estado de la  solicitud
+    """
+    cancion = request.json["cancion"]
+    app.logger.info(cancion)
+    status = Cancion.update(cancion)
+    if status != "ok":
+        return make_response(jsonify({"response": str(status)}), 200)
+    return make_response(jsonify({"response": "ok"}), 200)
 if __name__ == "__main__":
     app.run(port="5001", host="0.0.0.0", debug=True)
